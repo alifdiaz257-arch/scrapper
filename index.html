@@ -593,7 +593,7 @@
             background: var(--review-bg);
             border: 1px solid var(--border-light);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            min-height: 120px;
+            min-height: 130px;
         }
 
         .review-slider-wrap::before,
@@ -619,46 +619,48 @@
 
         .review-slider {
             display: flex;
-            transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
             will-change: transform;
         }
 
         .review-item {
             flex: 0 0 100%;
-            padding: 18px 32px;
+            padding: 20px 32px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 110px;
+            min-height: 120px;
             background: var(--review-bg);
+            transition: transform 1.2s ease, opacity 1.2s ease;
         }
 
         .review-item .review-stars-mini {
             color: var(--star);
-            font-size: 0.85rem;
-            letter-spacing: 2px;
-            margin-bottom: 6px;
+            font-size: 0.95rem;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
         }
         .review-item .review-stars-mini .empty {
             color: rgba(255, 255, 255, 0.04);
         }
 
         .review-item .review-text {
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             font-weight: 500;
             color: var(--text-main);
-            line-height: 1.6;
-            opacity: 0.85;
+            line-height: 1.7;
+            opacity: 0.9;
             max-width: 90%;
+            transition: transform 1.2s ease, opacity 1.2s ease;
         }
 
         .review-item .review-author {
             font-weight: 600;
             color: var(--text-muted);
-            font-size: 0.75rem;
-            margin-top: 6px;
+            font-size: 0.8rem;
+            margin-top: 8px;
             opacity: 0.4;
             letter-spacing: 0.3px;
         }
@@ -671,7 +673,7 @@
             opacity: 0.3;
             font-weight: 400;
             background: var(--review-bg);
-            min-height: 110px;
+            min-height: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -680,6 +682,12 @@
         }
         .review-empty span {
             font-size: 1.2rem;
+        }
+
+        /* Efek zoom untuk slide yang aktif */
+        .review-item.active-slide .review-text {
+            transform: scale(1.04);
+            opacity: 1;
         }
 
         /* ===== STEPS ===== */
@@ -1176,7 +1184,7 @@
             .review-slider-wrap::before,
             .review-slider-wrap::after { width: 20px; }
             .review-item { padding: 14px 16px; }
-            .review-item .review-text { font-size: 0.95rem; }
+            .review-item .review-text { font-size: 1rem; }
             .step-card { padding: 16px 14px; }
             .feature-card .icon svg,
             .step-icon svg { width: 28px; height: 28px; }
@@ -1194,7 +1202,7 @@
             .steps-grid { grid-template-columns: 1fr; }
             .feature-card { padding: 16px 14px; }
             .rating-modal-stars button { font-size: 1.4rem; }
-            .review-item .review-text { font-size: 0.85rem; }
+            .review-item .review-text { font-size: 0.9rem; }
             .feature-card .icon svg,
             .step-icon svg { width: 24px; height: 24px; }
         }
@@ -1461,7 +1469,7 @@
             setTimeout(updateLoading, 400);
 
             // ============================================================
-            // RATING SYSTEM - SEMUA ORANG BISA LIHAT & KIRIM
+            // RATING SYSTEM - SEMUA ORANG BISA LIHAT & KIRIM (PUBLIK)
             // ============================================================
 
             const STORAGE_KEY = 'webzip_ratings';
@@ -1503,7 +1511,6 @@
                 } catch (e) {}
                 renderRating();
                 renderSlider();
-                // Update juga activity jika ada
                 renderRecentActivity();
             }
 
@@ -1549,12 +1556,14 @@
                 }
 
                 let slidesHtml = '';
-                reviews.forEach((r) => {
+                reviews.forEach((r, index) => {
                     const stars = '★'.repeat(Math.min(r.star, 5)) + '☆'.repeat(Math.max(0, 5 - r.star));
                     const name = r.name && r.name.trim() ? r.name.trim() : 'Anonymous';
                     const reviewText = r.review && r.review.trim() ? r.review.trim() : 'Tidak ada ulasan';
+                    // Tambahkan class active-slide untuk slide pertama (akan diatur ulang oleh JS)
+                    const isActive = index === 0 ? 'active-slide' : '';
                     slidesHtml += `
-                            <div class="review-item">
+                            <div class="review-item ${isActive}" data-index="${index}">
                                 <div class="review-stars-mini">${stars}</div>
                                 <div class="review-text">"${escapeHtml(reviewText)}"</div>
                                 <div class="review-author">— ${escapeHtml(name)}</div>
@@ -1564,7 +1573,7 @@
 
                 // Clone first and last for infinite loop
                 const firstClone = reviews.length > 1 ? `
-                        <div class="review-item">
+                        <div class="review-item" data-index="clone-first">
                             <div class="review-stars-mini">${'★'.repeat(Math.min(reviews[0].star, 5)) + '☆'.repeat(Math.max(0, 5 - reviews[0].star))}</div>
                             <div class="review-text">"${escapeHtml(reviews[0].review && reviews[0].review.trim() ? reviews[0].review.trim() : 'Tidak ada ulasan')}"</div>
                             <div class="review-author">— ${escapeHtml(reviews[0].name && reviews[0].name.trim() ? reviews[0].name.trim() : 'Anonymous')}</div>
@@ -1572,7 +1581,7 @@
                     ` : '';
 
                 const lastClone = reviews.length > 1 ? `
-                        <div class="review-item">
+                        <div class="review-item" data-index="clone-last">
                             <div class="review-stars-mini">${'★'.repeat(Math.min(reviews[reviews.length-1].star, 5)) + '☆'.repeat(Math.max(0, 5 - reviews[reviews.length-1].star))}</div>
                             <div class="review-text">"${escapeHtml(reviews[reviews.length-1].review && reviews[reviews.length-1].review.trim() ? reviews[reviews.length-1].review.trim() : 'Tidak ada ulasan')}"</div>
                             <div class="review-author">— ${escapeHtml(reviews[reviews.length-1].name && reviews[reviews.length-1].name.trim() ? reviews[reviews.length-1].name.trim() : 'Anonymous')}</div>
@@ -1589,21 +1598,52 @@
                 reviewSlider.innerHTML = sliderHtml;
 
                 if (reviews.length > 1) {
-                    currentSlide = reviews.length;
+                    currentSlide = 1; // Mulai dari index 1 (slide pertama asli)
                     reviewSlider.style.transition = 'none';
                     reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
                     void reviewSlider.offsetHeight;
-                    reviewSlider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    reviewSlider.style.transition = 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+                    // Aktifkan zoom pada slide pertama
+                    activateCurrentSlide();
 
                     setTimeout(() => {
                         startSlider();
-                    }, 2000);
+                    }, 2500);
+                } else {
+                    // Hanya 1 review, aktifkan zoom
+                    const items = reviewSlider.querySelectorAll('.review-item');
+                    if (items.length > 0) {
+                        items[0].classList.add('active-slide');
+                    }
                 }
+            }
+
+            function activateCurrentSlide() {
+                const items = reviewSlider.querySelectorAll('.review-item');
+                items.forEach((item, index) => {
+                    item.classList.remove('active-slide');
+                    // Hanya slide yang terlihat (index saat ini) yang mendapat zoom
+                    if (index === currentSlide) {
+                        item.classList.add('active-slide');
+                    }
+                });
             }
 
             function startSlider() {
                 if (sliderInterval) clearInterval(sliderInterval);
                 if (reviews.length <= 1) return;
+
+                // Reset posisi jika perlu
+                const totalSlides = reviews.length + 2;
+                if (currentSlide >= totalSlides - 1) {
+                    reviewSlider.style.transition = 'none';
+                    currentSlide = 1;
+                    reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    void reviewSlider.offsetHeight;
+                    reviewSlider.style.transition = 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    activateCurrentSlide();
+                }
 
                 sliderInterval = setInterval(() => {
                     if (isSliding) return;
@@ -1612,8 +1652,13 @@
                     const totalSlides = reviews.length + 2;
                     currentSlide++;
 
-                    reviewSlider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    reviewSlider.style.transition = 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
                     reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+                    // Aktifkan zoom pada slide yang baru
+                    setTimeout(() => {
+                        activateCurrentSlide();
+                    }, 100);
 
                     setTimeout(() => {
                         if (currentSlide >= totalSlides - 1) {
@@ -1621,11 +1666,15 @@
                             currentSlide = 1;
                             reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
                             void reviewSlider.offsetHeight;
-                            reviewSlider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                            reviewSlider.style.transition = 'transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                            // Aktifkan zoom pada slide pertama setelah reset
+                            setTimeout(() => {
+                                activateCurrentSlide();
+                            }, 50);
                         }
                         isSliding = false;
-                    }, 950);
-                }, 5000);
+                    }, 1300);
+                }, 6000); // Lebih lambat: 6 detik per slide
             }
 
             function escapeHtml(str) {
@@ -1887,7 +1936,7 @@
             }, 1500);
 
             console.log('⭐ Scrape Website — Full Ready!');
-            console.log('📊 Semua orang bisa melihat & mengirim ulasan!');
+            console.log('📊 Semua orang bisa melihat & mengirim ulasan (publik)!');
             console.log('📝 Ulasan baru langsung muncul di slider & activity');
         })();
     </script>

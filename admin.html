@@ -427,6 +427,10 @@
         .history-item .download-btn:hover {
             background: rgba(74, 222, 128, 0.16);
         }
+        .history-item .download-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
 
         .history-empty {
             text-align: center;
@@ -652,9 +656,6 @@
 
     <div class="toast" id="toast"></div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js">
-    </script>
-
     <script>
         (function() {
             'use strict';
@@ -774,7 +775,6 @@
                     totalF += h.files || 0;
 
                     const time = h.time ? new Date(h.time).toLocaleString('id-ID') : '-';
-                    const hasZip = h.zipData ? true : false;
 
                     return `
                         <div class="history-item">
@@ -784,7 +784,7 @@
                                 <span>📦 ${h.size || '-'}</span>
                                 <span>🕐 ${time}</span>
                             </div>
-                            ${hasZip ? `<button class="download-btn" onclick="window.downloadZip(${idx})"><i class="fas fa-download"></i> ZIP</button>` : '<span style="font-size:0.55rem;opacity:0.3;">⚠️ ZIP tidak tersedia</span>'}
+                            <span style="font-size:0.55rem;opacity:0.3;">⚠️ ZIP tidak disimpan (ukuran terlalu besar)</span>
                         </div>
                     `;
                 }).join('');
@@ -795,45 +795,6 @@
                 const avg = sizeCount > 0 ? Math.round(totalSize / sizeCount) : 0;
                 avgSize.textContent = avg > 1024 ? (avg / 1024).toFixed(1) + ' MB' : (avg || 0) + ' KB';
             }
-
-            // ===== DOWNLOAD ZIP =====
-            window.downloadZip = function(idx) {
-                let history = [];
-                try {
-                    history = JSON.parse(localStorage.getItem('webzip_history') || '[]');
-                } catch (e) {
-                    showToast('❌ Gagal membaca history');
-                    return;
-                }
-
-                const item = history[idx];
-                if (!item) {
-                    showToast('⚠️ Item tidak ditemukan.');
-                    return;
-                }
-
-                if (!item.zipData) {
-                    showToast('⚠️ File ZIP tidak tersedia untuk item ini.');
-                    return;
-                }
-
-                try {
-                    const byteCharacters = atob(item.zipData);
-                    const byteNumbers = new Array(byteCharacters.length);
-                    for (let i = 0; i < byteCharacters.length; i++) {
-                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                    }
-                    const byteArray = new Uint8Array(byteNumbers);
-                    const blob = new Blob([byteArray], { type: 'application/zip' });
-
-                    const fileName = item.fileName || `webzip-${Date.now()}.zip`;
-                    saveAs(blob, fileName);
-                    showToast('✅ ZIP berhasil di-download!');
-                } catch (e) {
-                    console.error('Download error:', e);
-                    showToast('❌ Gagal download ZIP: ' + e.message);
-                }
-            };
 
             // ===== CLEAR HISTORY =====
             function clearHistory() {
@@ -925,9 +886,10 @@
             document.getElementById('sendMsgBtn').addEventListener('click', sendMessage);
 
             console.log('🔐 Admin Panel ready. PIN: 3333');
-            console.log('💡 Tips: Buka scraper.html, scrape website, lalu refresh admin.html');
+            console.log('💡 ZIP tidak disimpan di localStorage karena terlalu besar.');
+            console.log('💡 Download ZIP langsung dari popup setelah scraping selesai.');
 
-            // AUTO CHECK: Cek apakah ada data history saat halaman dimuat
+            // AUTO CHECK
             setTimeout(() => {
                 const raw = localStorage.getItem('webzip_history');
                 if (raw) {

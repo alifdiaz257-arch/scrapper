@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Scrape Website</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-deep: #06080f;
+            --bg-card: rgba(18, 22, 36, 0.75);
+            --border-light: rgba(255, 255, 255, 0.05);
+            --border-hover: rgba(139, 92, 246, 0.15);
+            --primary: #8b5cf6;
+            --primary-light: #a78bfa;
+            --secondary: #06b6d4;
+            --accent: #f472b6;
+            --text-main: #f1f3f5;
+            --text-muted: #8892a0;
+            --font-head: 'Space Grotesk', sans-serif;
+            --font-body: 'Plus Jakarta Sans', sans-serif;
+            --glass-blur: blur(16px);
+            --success: #4ade80;
+            --danger: #ef4444;
+            --star: #fbbf24;
+            --review-bg: #0d0f1a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent !important;
+            -webkit-touch-callout: none !important;
+            outline: none !important;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            font-weight: 500;
+            overflow-x: hidden;
+            min-height: 100vh;
+            padding-top: 80px;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.04) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 60%),
+                linear-gradient(180deg, #06080f 0%, #0c0e1a 50%, #06080f 100%);
+            background-attachment: fixed;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input,
+        textarea {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.06); border-radius: 10px; }
+        * { scrollbar-width: thin; scrollbar-color: rgba(255, 255, 255, 0.06) transparent; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.3; transform: scale(0.7); }
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        #loadingScreen {
+            position: fixed;
+            inset: 0;
+            background: #06080f;
+            background-image:
+                radial-gradient(ellipse at 20% 50%, rgba(139, 92, 246, 0.06) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 60%),
+                linear-gradient(180deg, #06080f 0%, #0c0e1a 50%, #06080f 100%);
+            z-index: 999999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            opacity: 1;
+            visibility: visible;
+        }
+
+        #loadingScreen.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 6em;
+            height: 6em;
+        }
+
+        .loader-ring {
+            animation: ringA 2s linear infinite;
+        }
+
+        .loader-ring-a {
+            stroke: #9708F4;
+        }
+
+        .loader-ring-b {
+            animation-name: ringB;
+            stroke: #5E14E4;
+        }
+
+        .loader-ring-c {
+            animation-name: ringC;
+            stroke: #9708F4;
+        }
+
+        .loader-ring-d {
+            animation-name: ringD;
+            stroke: #5E14E4;
+        }
+
+        .loading-text {
+            font-family: var(--font-head);
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            animation: pulseText 1.5s ease-in-out infinite;
+        }
+
+        .loading-text .highlight {
+            color: var(--primary);
+        }
+
+        .loading-progress {
+            width: 200px;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .loading-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+
+        .loading-progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .loading-percent {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            opacity: 0.3;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes ringA {
+            from, 4% { stroke-dasharray: 0 660; stroke-width: 20; stroke-dashoffset: -330; }
+            12% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -335; }
+            32% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -595; }
+            40%, 54% { stroke-dasharray: 0 660; stroke-width: 20; stroke-dashoffset: -660; }
+            62% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -665; }
+            82% { stroke-dasharray: 60 600; stroke-width: 30; stroke-dashoffset: -925; }
+            90%, to { stroke-dasharray: 0 660; stroke-width: 20; stroke-dashoffset: -990; }
+        }
+
+        @keyframes ringB {
+            from, 12% { stroke-dasharray: 0 220; stroke-width: 20; stroke-dashoffset: -110; }
+            20% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -115; }
+            40% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -195; }
+            48%, 62% { stroke-dasharray: 0 220; stroke-width: 20; stroke-dashoffset: -220; }
+            70% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -225; }
+            90% { stroke-dasharray: 20 200; stroke-width: 30; stroke-dashoffset: -305; }
+            98%, to { stroke-dasharray: 0 220; stroke-width: 20; stroke-dashoffset: -330; }
+        }
+
+        @keyframes ringC {
+            from { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: 0; }
+            8% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -5; }
+            28% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -175; }
+            36%, 58% { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -220; }
+            66% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -225; }
+            86% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -395; }
+            94%, to { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -440; }
+        }
+
+        @keyframes ringD {
+            from, 8% { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: 0; }
+            16% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -5; }
+            36% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -175; }
+            44%, 50% { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -220; }
+            58% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -225; }
+            78% { stroke-dasharray: 40 400; stroke-width: 30; stroke-dashoffset: -395; }
+            86%, to { stroke-dasharray: 0 440; stroke-width: 20; stroke-dashoffset: -440; }
+        }
+
+        .reveal-hidden {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.7s cubic-bezier(0.23, 1, 0.32, 1),
+                        transform 0.7s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .reveal-hidden.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ===== NAVBAR ===== */
+        nav {
+            position: fixed;
+            top: 16px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 92%;
+            max-width: 1000px;
+            padding: 10px 20px;
+            background: rgba(10, 12, 20, 0.6);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-light);
+            border-radius: 100px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .brand {
+            font-family: var(--font-head);
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+            letter-spacing: -0.3px;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        .brand span { color: var(--primary); }
+        .brand i { color: var(--primary); }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+            font-size: 0.65rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .nav-btn.primary {
+            background: linear-gradient(145deg, #7c3aed, #6d28d9);
+            color: #fff;
+            border-color: transparent;
+        }
+        .nav-btn.primary:hover {
+            background: linear-gradient(145deg, #8b5cf6, #7c3aed);
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.25);
+        }
+        .nav-btn.rating-btn {
+            background: rgba(251, 191, 36, 0.06);
+            border-color: rgba(251, 191, 36, 0.08);
+            color: #fbbf24;
+        }
+        .nav-btn.rating-btn:hover {
+            background: rgba(251, 191, 36, 0.12);
+            border-color: rgba(251, 191, 36, 0.15);
+            color: #fcd34d;
+        }
+
+        .nav-btn.inbox-btn {
+            position: relative;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            color: var(--text-muted);
+        }
+        .nav-btn.inbox-btn:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        .inbox-badge {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 16px;
+            height: 16px;
+            background: var(--danger);
+            border-radius: 50%;
+            font-size: 0.5rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+            display: none;
+        }
+        .inbox-badge.show { display: flex; }
+
+        /* ===== INBOX MODAL ===== */
+        .inbox-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .inbox-modal.active { display: flex; }
+
+        .inbox-card {
+            background: rgba(12, 12, 28, 0.95);
+            border-radius: 20px;
+            padding: 28px 24px;
+            max-width: 480px;
+            width: 100%;
+            max-height: 80vh;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .inbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .inbox-header h2 {
+            font-family: var(--font-head);
+            font-size: 1rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .inbox-header h2 i { color: var(--secondary); }
+        .inbox-close {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .inbox-close:hover { color: #fff; transform: rotate(90deg); }
+
+        .inbox-list {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .inbox-item {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            padding: 12px 14px;
+            transition: all 0.25s ease;
+        }
+        .inbox-item:hover {
+            border-color: rgba(139, 92, 246, 0.15);
+        }
+        .inbox-item .msg-title {
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text-main);
+        }
+        .inbox-item .msg-body {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 4px;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+        .inbox-item .msg-time {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            opacity: 0.2;
+            font-weight: 400;
+        }
+        .inbox-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 30px 0;
+            opacity: 0.3;
+            font-weight: 400;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            max-width: 900px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 14px;
+            border-radius: 100px;
+            background: rgba(139, 92, 246, 0.06);
+            border: 1px solid rgba(139, 92, 246, 0.08);
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+        .hero-badge .dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        .hero-title {
+            font-family: var(--font-head);
+            font-size: 2.8rem;
+            font-weight: 700;
+            line-height: 1.08;
+            margin-bottom: 12px;
+            letter-spacing: -0.02em;
+        }
+        .hero-title .highlight {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            max-width: 560px;
+            margin: 0 auto 24px;
+            font-weight: 400;
+            opacity: 0.6;
+        }
+
+        /* ===== RATING SECTION ===== */
+        .rating-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            padding: 16px 0;
+            position: relative;
+        }
+
+        .rating-number {
+            font-family: var(--font-head);
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text-main);
+            line-height: 1;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .rating-number:hover {
+            color: var(--primary);
+        }
+
+        .rating-stars {
+            display: flex;
+            gap: 4px;
+            color: var(--star);
+            font-size: 1.1rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+        }
+        .rating-stars .empty {
+            color: rgba(255, 255, 255, 0.06);
+        }
+
+        .rating-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.3;
+            font-weight: 500;
+        }
+
+        .rating-count {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.2;
+            font-weight: 400;
+            cursor: pointer;
+        }
+        .rating-count:hover {
+            opacity: 0.5;
+        }
+
+        /* ===== REVIEW SLIDER ===== */
+        .review-slider-wrap {
+            position: relative;
+            width: 100%;
+            max-width: 680px;
+            margin: 10px auto 0;
+            overflow: hidden;
+            border-radius: 14px;
+            background: var(--review-bg);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            min-height: 120px;
+        }
+
+        .review-slider-wrap::before,
+        .review-slider-wrap::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 60px;
+            z-index: 5;
+            pointer-events: none;
+        }
+        .review-slider-wrap::before {
+            left: 0;
+            background: linear-gradient(90deg, var(--review-bg), transparent);
+            border-radius: 14px 0 0 14px;
+        }
+        .review-slider-wrap::after {
+            right: 0;
+            background: linear-gradient(270deg, var(--review-bg), transparent);
+            border-radius: 0 14px 14px 0;
+        }
+
+        .review-slider {
+            display: flex;
+            transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            will-change: transform;
+        }
+
+        .review-item {
+            flex: 0 0 100%;
+            padding: 18px 32px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 110px;
+            background: var(--review-bg);
+        }
+
+        .review-item .review-stars-mini {
+            color: var(--star);
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
+        }
+        .review-item .review-stars-mini .empty {
+            color: rgba(255, 255, 255, 0.04);
+        }
+
+        .review-item .review-text {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text-main);
+            line-height: 1.6;
+            opacity: 0.85;
+            max-width: 90%;
+        }
+
+        .review-item .review-author {
+            font-weight: 600;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-top: 6px;
+            opacity: 0.4;
+            letter-spacing: 0.3px;
+        }
+
+        .review-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            padding: 30px 0;
+            opacity: 0.3;
+            font-weight: 400;
+            background: var(--review-bg);
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .review-empty span {
+            font-size: 1.2rem;
+        }
+
+        /* ===== STEPS ===== */
+        .steps-section {
+            padding: 4px 0;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-top: 4px;
+        }
+
+        .step-card {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+            padding: 20px 18px;
+            text-align: center;
+            transition: all 0.25s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .step-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .step-number {
+            font-family: var(--font-head);
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--primary-light);
+            background: rgba(139, 92, 246, 0.08);
+            border: 1px solid rgba(139, 92, 246, 0.06);
+            padding: 2px 12px;
+            border-radius: 100px;
+            display: inline-block;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .step-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+            color: var(--primary-light);
+        }
+
+        .step-icon svg {
+            width: 34px;
+            height: 34px;
+            stroke: var(--primary-light);
+            filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.08));
+            transition: all 0.3s ease;
+        }
+
+        .step-card:hover .step-icon svg {
+            stroke: var(--primary);
+            filter: drop-shadow(0 0 24px rgba(139, 92, 246, 0.15));
+            transform: scale(1.05);
+        }
+
+        .step-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .step-desc {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.5;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        /* ===== FEATURES ===== */
+        .features {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .feature-card {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+            padding: 22px 18px;
+            text-align: center;
+            transition: all 0.25s ease;
+        }
+        .feature-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-card .icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            color: var(--primary-light);
+        }
+
+        .feature-card .icon svg {
+            width: 34px;
+            height: 34px;
+            stroke: var(--primary-light);
+            filter: drop-shadow(0 0 12px rgba(139, 92, 246, 0.08));
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover .icon svg {
+            stroke: var(--primary);
+            filter: drop-shadow(0 0 24px rgba(139, 92, 246, 0.15));
+            transform: scale(1.06);
+        }
+
+        .feature-card .label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 2px;
+        }
+
+        .feature-card .desc {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            opacity: 0.4;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        /* ===== SEARCH BAR ===== */
+        .search-section {
+            padding: 4px 0;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 12px;
+            border: 1px solid var(--border-light);
+            padding: 6px 6px 6px 16px;
+            transition: all 0.25s ease;
+        }
+        .search-bar:hover {
+            border-color: var(--border-hover);
+        }
+        .search-bar:focus-within {
+            border-color: rgba(139, 92, 246, 0.2);
+            box-shadow: 0 0 30px rgba(139, 92, 246, 0.04);
+        }
+
+        .search-bar .icon {
+            color: var(--text-muted);
+            opacity: 0.3;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .search-bar input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+            font-family: inherit;
+            outline: none;
+            padding: 8px 0;
+            min-width: 0;
+        }
+        .search-bar input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.2;
+            font-weight: 400;
+        }
+
+        .search-bar .shortcut {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            opacity: 0.15;
+            font-weight: 600;
+            padding: 4px 8px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            flex-shrink: 0;
+            letter-spacing: 0.3px;
+        }
+
+        /* ===== ACTIVITY ===== */
+        .panel {
+            background: var(--bg-card);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border-radius: 14px;
+            border: 1px solid var(--border-light);
+            padding: 20px 22px;
+            transition: border-color 0.25s ease;
+        }
+        .panel:hover {
+            border-color: var(--border-hover);
+        }
+
+        .panel-title {
+            font-family: var(--font-head);
+            font-size: 0.6rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            font-weight: 700;
+            opacity: 0.3;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        .activity-item:last-child { border-bottom: none; }
+
+        .activity-item .icon-box {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(139, 92, 246, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            color: var(--secondary);
+            flex-shrink: 0;
+        }
+        .activity-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .activity-item .info .url {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-main);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .activity-item .info .meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            opacity: 0.3;
+            font-weight: 400;
+            margin-top: 2px;
+        }
+        .activity-item .badge {
+            font-size: 0.5rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 100px;
+            background: rgba(74, 222, 128, 0.06);
+            color: var(--success);
+            border: 1px solid rgba(74, 222, 128, 0.04);
+            flex-shrink: 0;
+        }
+        .activity-empty {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            padding: 24px 0;
+            opacity: 0.2;
+            font-weight: 400;
+        }
+
+        /* ===== RATING MODAL ===== */
+        .rating-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .rating-modal.active { display: flex; }
+
+        .rating-modal-card {
+            background: rgba(12, 12, 28, 0.95);
+            border-radius: 20px;
+            padding: 32px 28px 28px;
+            max-width: 420px;
+            width: 100%;
+            border: 1px solid var(--border-light);
+            box-shadow: 0 40px 80px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        .rating-modal-card h2 {
+            font-family: var(--font-head);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        .rating-modal-card .sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+            opacity: 0.5;
+            font-weight: 400;
+        }
+
+        .rating-modal-stars {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .rating-modal-stars button {
+            background: none;
+            border: none;
+            font-size: 2rem;
+            color: rgba(255, 255, 255, 0.04);
+            cursor: pointer;
+            transition: all 0.15s;
+            padding: 0 2px;
+        }
+        .rating-modal-stars button.active {
+            color: var(--star);
+            transform: scale(1.05);
+        }
+        .rating-modal-stars button:hover {
+            transform: scale(1.1);
+        }
+
+        .rating-modal-input {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+        .rating-modal-input:focus {
+            border-color: rgba(139, 92, 246, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .rating-modal-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.2;
+            font-weight: 400;
+        }
+
+        .rating-modal-textarea {
+            width: 100%;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-family: inherit;
+            outline: none;
+            transition: 0.2s;
+            resize: vertical;
+            min-height: 70px;
+            margin-bottom: 16px;
+        }
+        .rating-modal-textarea:focus {
+            border-color: rgba(139, 92, 246, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+        }
+        .rating-modal-textarea::placeholder {
+            color: var(--text-muted);
+            opacity: 0.2;
+            font-weight: 400;
+        }
+
+        .rating-modal-actions {
+            display: flex;
+            gap: 10px;
+        }
+        .rating-modal-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+
+        .rating-modal-error {
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-bottom: 12px;
+            min-height: 20px;
+            opacity: 0;
+            transition: 0.2s;
+            font-weight: 500;
+        }
+        .rating-modal-error.show { opacity: 1; }
+
+        .rating-modal-success {
+            display: none;
+            padding: 10px;
+            color: var(--success);
+            font-size: 0.9rem;
+            font-weight: 600;
+            animation: fadeUp 0.3s ease;
+        }
+        .rating-modal-success.show { display: block; }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            border: none;
+            text-decoration: none;
+        }
+        .btn-primary {
+            background: linear-gradient(145deg, #7c3aed, #6d28d9);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(124, 58, 237, 0.2);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(124, 58, 237, 0.3);
+        }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+            border: 1px solid var(--border-light);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+            color: #fff;
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            text-align: center;
+            padding: 16px 0;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            opacity: 0.15;
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 700px) {
+            body { padding-top: 70px; }
+            .main-content { padding: 0 14px 30px; gap: 24px; }
+            .hero-title { font-size: 2rem; }
+            .hero-desc { font-size: 0.9rem; }
+            .features { grid-template-columns: 1fr; }
+            .steps-grid { grid-template-columns: 1fr 1fr; }
+            nav { width: 96%; padding: 8px 14px; top: 10px; }
+            .brand { font-size: 0.85rem; }
+            .nav-btn { font-size: 0.55rem; padding: 4px 8px; }
+            .rating-number { font-size: 1.8rem; }
+            .panel { padding: 16px 16px; }
+            .rating-modal-card { padding: 24px 18px; }
+            .rating-modal-stars button { font-size: 1.6rem; }
+            .review-slider-wrap::before,
+            .review-slider-wrap::after { width: 20px; }
+            .review-item { padding: 14px 16px; }
+            .review-item .review-text { font-size: 0.95rem; }
+            .step-card { padding: 16px 14px; }
+            .feature-card .icon svg,
+            .step-icon svg { width: 28px; height: 28px; }
+            .search-bar { padding: 4px 4px 4px 12px; }
+            .search-bar input { font-size: 0.8rem; }
+            .search-bar .shortcut { display: none; }
+            .inbox-card { padding: 20px 16px; }
+            .loader { width: 4em; height: 4em; }
+            .loading-text { font-size: 0.7rem; }
+            .loading-progress { width: 150px; }
+        }
+
+        @media (max-width: 400px) {
+            .hero-title { font-size: 1.6rem; }
+            .steps-grid { grid-template-columns: 1fr; }
+            .feature-card { padding: 16px 14px; }
+            .rating-modal-stars button { font-size: 1.4rem; }
+            .review-item .review-text { font-size: 0.85rem; }
+            .feature-card .icon svg,
+            .step-icon svg { width: 24px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOADING SCREEN ===== -->
+    <div id="loadingScreen">
+        <svg viewBox="0 0 240 240" height="120" width="120" class="loader">
+            <circle stroke-linecap="round" stroke-dashoffset="-330" stroke-dasharray="0 660" stroke-width="20" stroke="#000" fill="none" r="105" cy="120" cx="120" class="loader-ring loader-ring-a"></circle>
+            <circle stroke-linecap="round" stroke-dashoffset="-110" stroke-dasharray="0 220" stroke-width="20" stroke="#000" fill="none" r="35" cy="120" cx="120" class="loader-ring loader-ring-b"></circle>
+            <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="20" stroke="#000" fill="none" r="70" cy="120" cx="85" class="loader-ring loader-ring-c"></circle>
+            <circle stroke-linecap="round" stroke-dasharray="0 440" stroke-width="20" stroke="#000" fill="none" r="70" cy="120" cx="155" class="loader-ring loader-ring-d"></circle>
+        </svg>
+        <div class="loading-text">Memuat <span class="highlight">Scrape Website</span></div>
+        <div class="loading-progress">
+            <div class="loading-progress-fill" id="loadingProgressFill"></div>
+        </div>
+        <div class="loading-percent" id="loadingPercent">0%</div>
+    </div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav>
+        <a href="index.html" class="brand">
+            <i class="fas fa-code"></i> Scrape<span>Website</span>
+        </a>
+        <div class="nav-right">
+            <button class="nav-btn inbox-btn" id="inboxNavBtn" title="Inbox">
+                <i class="fas fa-inbox"></i>
+                <span class="inbox-badge" id="inboxBadge">0</span>
+            </button>
+            <button class="nav-btn rating-btn" id="ratingNavBtn"><i class="fas fa-star"></i> Rating</button>
+            <a href="scraper.html" class="nav-btn"><i class="fas fa-scroll"></i> Scraper</a>
+            <a href="admin.html" class="nav-btn primary"><i class="fas fa-user-shield"></i> Admin</a>
+        </div>
+    </nav>
+
+    <!-- ===== RATING POPUP ===== -->
+    <div class="rating-modal" id="ratingModal">
+        <div class="rating-modal-card">
+            <h2>⭐ Beri Rating</h2>
+            <p class="sub">Bagaimana pengalamanmu menggunakan Scrape Website?</p>
+
+            <div class="rating-modal-stars" id="modalStars">
+                <button data-star="1">★</button>
+                <button data-star="2">★</button>
+                <button data-star="3">★</button>
+                <button data-star="4">★</button>
+                <button data-star="5">★</button>
+            </div>
+
+            <div class="rating-modal-error" id="ratingError">Pilih minimal 1 bintang.</div>
+
+            <input type="text" class="rating-modal-input" id="ratingName" placeholder="Nama (opsional)" maxlength="30" />
+
+            <textarea class="rating-modal-textarea" id="ratingReview" placeholder="Tulis ulasan..." maxlength="500"></textarea>
+
+            <div class="rating-modal-success" id="ratingSuccess">✅ Terima kasih! Rating berhasil dikirim.</div>
+
+            <div class="rating-modal-actions">
+                <button class="btn btn-secondary" id="ratingCancel">Batal</button>
+                <button class="btn btn-primary" id="ratingSubmit"><i class="fas fa-paper-plane"></i> Kirim</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== INBOX MODAL ===== -->
+    <div class="inbox-modal" id="inboxModal">
+        <div class="inbox-card">
+            <div class="inbox-header">
+                <h2><i class="fas fa-inbox"></i> Inbox</h2>
+                <button class="inbox-close" id="inboxClose">&times;</button>
+            </div>
+            <div class="inbox-list" id="inboxList">
+                <div class="inbox-empty">Belum ada pesan</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <div class="main-content">
+
+        <!-- ===== HERO ===== -->
+        <section class="hero reveal-hidden">
+            <div class="hero-badge">
+                <span class="dot"></span>
+                <span>v2.0 · Stable</span>
+            </div>
+            <h1 class="hero-title">
+                Scrape <span class="highlight">Website</span>
+            </h1>
+            <p class="hero-desc">
+                Download seluruh konten website — HTML, CSS, JS, gambar, video — dalam satu file ZIP.
+                Cepat, gratis, dan tanpa batasan.
+            </p>
+        </section>
+
+        <!-- ===== RATING + REVIEW SLIDER ===== -->
+        <div class="rating-section reveal-hidden">
+            <div class="rating-number" id="ratingDisplay">0.0</div>
+            <div class="rating-stars" id="ratingStarsDisplay">
+                <span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span>
+            </div>
+            <div class="rating-label">Rating &amp; Ulasan</div>
+            <div class="rating-count" id="ratingCountDisplay">0 ulasan</div>
+
+            <div class="review-slider-wrap">
+                <div class="review-slider" id="reviewSlider">
+                    <div class="review-empty"><span>✨</span> Belum ada ulasan. Jadilah yang pertama!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== SEARCH BAR ===== -->
+        <div class="search-section reveal-hidden">
+            <div class="search-bar">
+                <span class="icon"><i class="fas fa-search"></i></span>
+                <input type="text" placeholder="Cari website, fitur, atau tutorial..." />
+                <span class="shortcut">⌘K</span>
+            </div>
+        </div>
+
+        <!-- ===== LANGKAH-LANGKAH ===== -->
+        <div class="steps-section reveal-hidden">
+            <div class="panel" style="padding: 20px 22px;">
+                <div class="panel-title"><i class="fas fa-list-check"></i> Cara Menggunakan</div>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <span class="step-number">Langkah 1</span>
+                        <span class="step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/>
+                                <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>
+                            </svg>
+                        </span>
+                        <div class="step-title">Masukkan URL</div>
+                        <div class="step-desc">Tempel link website yang ingin kamu scrape di kolom URL.</div>
+                    </div>
+
+                    <div class="step-card">
+                        <span class="step-number">Langkah 2</span>
+                        <span class="step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+                                <polyline points="17 6 23 6 23 12"/>
+                            </svg>
+                        </span>
+                        <div class="step-title">Klik Scrape</div>
+                        <div class="step-desc">Tekan tombol Scrape dan tunggu proses pengambilan data selesai.</div>
+                    </div>
+
+                    <div class="step-card">
+                        <span class="step-number">Langkah 3</span>
+                        <span class="step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                                <polyline points="7 10 12 15 17 10"/>
+                                <line x1="12" y1="15" x2="12" y2="3"/>
+                            </svg>
+                        </span>
+                        <div class="step-title">Download ZIP</div>
+                        <div class="step-desc">File ZIP siap diunduh — semua konten website tersimpan rapi.</div>
+                    </div>
+
+                    <div class="step-card">
+                        <span class="step-number">Langkah 4</span>
+                        <span class="step-icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
+                                <line x1="12" y1="11" x2="12" y2="17"/>
+                                <polyline points="9 14 12 17 15 14"/>
+                            </svg>
+                        </span>
+                        <div class="step-title">Ekstrak &amp; Gunakan</div>
+                        <div class="step-desc">Buka file ZIP, semua aset website siap kamu gunakan.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== FEATURES ===== -->
+        <div class="features reveal-hidden">
+            <div class="feature-card">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/>
+                        <path d="M3 12a9 9 0 019-9"/>
+                    </svg>
+                </span>
+                <div class="label">Selalu Update</div>
+                <div class="desc">Scraper diperbarui mengikuti perkembangan website target.</div>
+            </div>
+
+            <div class="feature-card">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </span>
+                <div class="label">Dikurasi Ahli</div>
+                <div class="desc">Setiap fitur telah diuji dan diverifikasi oleh tim kurator.</div>
+            </div>
+
+            <div class="feature-card">
+                <span class="icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+                        <circle cx="12" cy="12" r="3"/>
+                        <circle cx="12" cy="12" r="7"/>
+                    </svg>
+                </span>
+                <div class="label">100% Gratis</div>
+                <div class="desc">Semua tools gratis digunakan. Bebas dipakai untuk semua.</div>
+            </div>
+        </div>
+
+        <!-- ===== RECENT ACTIVITY ===== -->
+        <div class="panel reveal-hidden">
+            <div class="panel-title"><i class="fas fa-clock"></i> Aktivitas Terbaru</div>
+            <div id="recentActivity">
+                <div class="activity-empty">Belum ada aktivitas scraping</div>
+            </div>
+        </div>
+
+        <!-- ===== FOOTER ===== -->
+        <div class="footer">
+            Edit with <i class="fas fa-heart" style="color: var(--primary);"></i> · &copy; 2026 Scrape Website
+        </div>
+
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            // ============================================================
+            // LOADING SCREEN
+            // ============================================================
+
+            const loadingScreen = document.getElementById('loadingScreen');
+            const progressFill = document.getElementById('loadingProgressFill');
+            const percentText = document.getElementById('loadingPercent');
+
+            let loadProgress = 0;
+
+            function updateLoading() {
+                loadProgress += Math.random() * 12 + 4;
+                if (loadProgress > 100) loadProgress = 100;
+                progressFill.style.width = loadProgress + '%';
+                percentText.textContent = Math.floor(loadProgress) + '%';
+
+                if (loadProgress < 100) {
+                    setTimeout(updateLoading, 200 + Math.random() * 250);
+                } else {
+                    setTimeout(() => {
+                        loadingScreen.classList.add('hidden');
+                        document.body.style.overflow = '';
+                    }, 600);
+                }
+            }
+
+            setTimeout(updateLoading, 400);
+
+            // ============================================================
+            // RATING SYSTEM - SEMUA ORANG BISA LIHAT & KIRIM
+            // ============================================================
+
+            const STORAGE_KEY = 'webzip_ratings';
+
+            const ratingDisplay = document.getElementById('ratingDisplay');
+            const ratingStarsDisplay = document.getElementById('ratingStarsDisplay');
+            const ratingCountDisplay = document.getElementById('ratingCountDisplay');
+            const reviewSlider = document.getElementById('reviewSlider');
+            const ratingNavBtn = document.getElementById('ratingNavBtn');
+            const ratingModal = document.getElementById('ratingModal');
+            const modalStars = document.getElementById('modalStars');
+            const ratingError = document.getElementById('ratingError');
+            const ratingName = document.getElementById('ratingName');
+            const ratingReview = document.getElementById('ratingReview');
+            const ratingSuccess = document.getElementById('ratingSuccess');
+            const ratingSubmit = document.getElementById('ratingSubmit');
+            const ratingCancel = document.getElementById('ratingCancel');
+
+            let selectedStar = 0;
+            let sliderInterval = null;
+            let currentSlide = 0;
+            let reviews = [];
+            let isSliding = false;
+
+            function loadRatings() {
+                try {
+                    const data = localStorage.getItem(STORAGE_KEY);
+                    reviews = data ? JSON.parse(data) : [];
+                    // Urutkan dari yang terbaru
+                    reviews.sort((a, b) => b.timestamp - a.timestamp);
+                } catch (e) { reviews = []; }
+                renderRating();
+                renderSlider();
+            }
+
+            function saveRatings() {
+                try { 
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews)); 
+                } catch (e) {}
+                renderRating();
+                renderSlider();
+                // Update juga activity jika ada
+                renderRecentActivity();
+            }
+
+            function renderRating() {
+                const total = reviews.length;
+                if (total === 0) {
+                    ratingDisplay.textContent = '0.0';
+                    ratingStarsDisplay.innerHTML =
+                        '<span>★</span><span>★</span><span>★</span><span>★</span><span class="empty">★</span>';
+                    ratingCountDisplay.textContent = '0 ulasan';
+                    return;
+                }
+
+                let sum = 0;
+                reviews.forEach(r => sum += r.star);
+                const avg = sum / total;
+                ratingDisplay.textContent = avg.toFixed(1);
+
+                let starsHtml = '';
+                const fullStars = Math.floor(avg);
+                const hasHalf = avg - fullStars >= 0.5;
+                for (let i = 0; i < 5; i++) {
+                    if (i < fullStars || (i === fullStars && hasHalf)) {
+                        starsHtml += '<span>★</span>';
+                    } else {
+                        starsHtml += '<span class="empty">★</span>';
+                    }
+                }
+                ratingStarsDisplay.innerHTML = starsHtml;
+                ratingCountDisplay.textContent = `${total} ulasan`;
+            }
+
+            function renderSlider() {
+                if (sliderInterval) {
+                    clearInterval(sliderInterval);
+                    sliderInterval = null;
+                }
+
+                if (reviews.length === 0) {
+                    reviewSlider.innerHTML =
+                        `<div class="review-empty"><span>✨</span> Belum ada ulasan. Jadilah yang pertama!</div>`;
+                    return;
+                }
+
+                let slidesHtml = '';
+                reviews.forEach((r) => {
+                    const stars = '★'.repeat(Math.min(r.star, 5)) + '☆'.repeat(Math.max(0, 5 - r.star));
+                    const name = r.name && r.name.trim() ? r.name.trim() : 'Anonymous';
+                    const reviewText = r.review && r.review.trim() ? r.review.trim() : 'Tidak ada ulasan';
+                    slidesHtml += `
+                            <div class="review-item">
+                                <div class="review-stars-mini">${stars}</div>
+                                <div class="review-text">"${escapeHtml(reviewText)}"</div>
+                                <div class="review-author">— ${escapeHtml(name)}</div>
+                            </div>
+                        `;
+                });
+
+                // Clone first and last for infinite loop
+                const firstClone = reviews.length > 1 ? `
+                        <div class="review-item">
+                            <div class="review-stars-mini">${'★'.repeat(Math.min(reviews[0].star, 5)) + '☆'.repeat(Math.max(0, 5 - reviews[0].star))}</div>
+                            <div class="review-text">"${escapeHtml(reviews[0].review && reviews[0].review.trim() ? reviews[0].review.trim() : 'Tidak ada ulasan')}"</div>
+                            <div class="review-author">— ${escapeHtml(reviews[0].name && reviews[0].name.trim() ? reviews[0].name.trim() : 'Anonymous')}</div>
+                        </div>
+                    ` : '';
+
+                const lastClone = reviews.length > 1 ? `
+                        <div class="review-item">
+                            <div class="review-stars-mini">${'★'.repeat(Math.min(reviews[reviews.length-1].star, 5)) + '☆'.repeat(Math.max(0, 5 - reviews[reviews.length-1].star))}</div>
+                            <div class="review-text">"${escapeHtml(reviews[reviews.length-1].review && reviews[reviews.length-1].review.trim() ? reviews[reviews.length-1].review.trim() : 'Tidak ada ulasan')}"</div>
+                            <div class="review-author">— ${escapeHtml(reviews[reviews.length-1].name && reviews[reviews.length-1].name.trim() ? reviews[reviews.length-1].name.trim() : 'Anonymous')}</div>
+                        </div>
+                    ` : '';
+
+                let sliderHtml = '';
+                if (reviews.length > 1) {
+                    sliderHtml = lastClone + slidesHtml + firstClone;
+                } else {
+                    sliderHtml = slidesHtml;
+                }
+
+                reviewSlider.innerHTML = sliderHtml;
+
+                if (reviews.length > 1) {
+                    currentSlide = reviews.length;
+                    reviewSlider.style.transition = 'none';
+                    reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                    void reviewSlider.offsetHeight;
+                    reviewSlider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+                    setTimeout(() => {
+                        startSlider();
+                    }, 2000);
+                }
+            }
+
+            function startSlider() {
+                if (sliderInterval) clearInterval(sliderInterval);
+                if (reviews.length <= 1) return;
+
+                sliderInterval = setInterval(() => {
+                    if (isSliding) return;
+                    isSliding = true;
+
+                    const totalSlides = reviews.length + 2;
+                    currentSlide++;
+
+                    reviewSlider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                    reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+                    setTimeout(() => {
+                        if (currentSlide >= totalSlides - 1) {
+                            reviewSlider.style.transition = 'none';
+                            currentSlide = 1;
+                            reviewSlider.style.transform = `translateX(-${currentSlide * 100}%)`;
+                            void reviewSlider.offsetHeight;
+                            reviewSlider.style.transition = 'transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+                        }
+                        isSliding = false;
+                    }, 950);
+                }, 5000);
+            }
+
+            function escapeHtml(str) {
+                const div = document.createElement('div');
+                div.textContent = str;
+                return div.innerHTML;
+            }
+
+            // ===== MODAL STARS =====
+            modalStars.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    selectedStar = parseInt(this.dataset.star);
+                    modalStars.querySelectorAll('button').forEach(b => {
+                        b.classList.toggle('active', parseInt(b.dataset.star) <= selectedStar);
+                    });
+                    ratingError.classList.remove('show');
+                });
+            });
+
+            function openModal() {
+                ratingModal.classList.add('active');
+                selectedStar = 0;
+                modalStars.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+                ratingError.classList.remove('show');
+                ratingSuccess.classList.remove('show');
+                ratingName.value = '';
+                ratingReview.value = '';
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeModal() {
+                ratingModal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+
+            ratingNavBtn.addEventListener('click', openModal);
+            ratingCancel.addEventListener('click', closeModal);
+            ratingModal.addEventListener('click', (e) => {
+                if (e.target === ratingModal) closeModal();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && ratingModal.classList.contains('active')) closeModal();
+            });
+
+            ratingSubmit.addEventListener('click', function() {
+                if (selectedStar === 0) {
+                    ratingError.textContent = 'Pilih minimal 1 bintang.';
+                    ratingError.classList.add('show');
+                    return;
+                }
+
+                const name = ratingName.value.trim() || 'Anonymous';
+                const review = ratingReview.value.trim() || 'Tidak ada ulasan';
+
+                // Tambah ulasan baru
+                reviews.push({ 
+                    star: selectedStar, 
+                    name: name, 
+                    review: review, 
+                    timestamp: Date.now() 
+                });
+                
+                // Urutkan dari terbaru
+                reviews.sort((a, b) => b.timestamp - a.timestamp);
+                
+                // Simpan ke localStorage
+                saveRatings();
+
+                ratingSuccess.classList.add('show');
+                ratingSubmit.disabled = true;
+                
+                setTimeout(() => {
+                    ratingSuccess.classList.remove('show');
+                    ratingSubmit.disabled = false;
+                    closeModal();
+                }, 1800);
+            });
+
+            // ============================================================
+            // INBOX SYSTEM
+            // ============================================================
+
+            const inboxNavBtn = document.getElementById('inboxNavBtn');
+            const inboxModal = document.getElementById('inboxModal');
+            const inboxClose = document.getElementById('inboxClose');
+            const inboxList = document.getElementById('inboxList');
+            const inboxBadge = document.getElementById('inboxBadge');
+            let messages = [];
+
+            function loadMessages() {
+                try {
+                    const saved = localStorage.getItem('webzip_inbox');
+                    messages = saved ? JSON.parse(saved) : [];
+                } catch (e) { messages = []; }
+                updateBadge();
+                renderInbox();
+            }
+
+            function saveMessages() {
+                try { localStorage.setItem('webzip_inbox', JSON.stringify(messages)); } catch (e) {}
+                updateBadge();
+                renderInbox();
+            }
+
+            function updateBadge() {
+                const unread = messages.filter(m => !m.read).length;
+                if (unread > 0) {
+                    inboxBadge.textContent = unread;
+                    inboxBadge.classList.add('show');
+                } else {
+                    inboxBadge.classList.remove('show');
+                }
+            }
+
+            function renderInbox() {
+                if (!messages.length) {
+                    inboxList.innerHTML = `<div class="inbox-empty">Belum ada pesan</div>`;
+                    return;
+                }
+                inboxList.innerHTML = messages.map((msg, idx) => `
+                        <div class="inbox-item" onclick="window.markRead(${idx})">
+                            <div class="msg-title">${escapeHtml(msg.title)}</div>
+                            <div class="msg-body">${escapeHtml(msg.body)}</div>
+                            <div class="msg-time">${msg.time || 'Baru saja'}</div>
+                        </div>
+                    `).join('');
+            }
+
+            window.markRead = function(idx) {
+                if (messages[idx]) { messages[idx].read = true;
+                    saveMessages(); }
+            };
+
+            inboxNavBtn.addEventListener('click', () => {
+                inboxModal.classList.add('active');
+                messages.forEach(m => m.read = true);
+                saveMessages();
+            });
+
+            inboxClose.addEventListener('click', () => { inboxModal.classList.remove('active'); });
+            inboxModal.addEventListener('click', (e) => { if (e.target === inboxModal) inboxModal.classList.remove(
+                    'active'); });
+            document.addEventListener('keydown', (e) => { if (e.key === 'Escape') inboxModal.classList.remove('active'); });
+
+            // ============================================================
+            // RECENT ACTIVITY
+            // ============================================================
+
+            function renderRecentActivity() {
+                const container = document.getElementById('recentActivity');
+                try {
+                    const history = JSON.parse(localStorage.getItem('webzip_history') || '[]');
+                    const recent = history.slice(0, 5);
+                    if (recent.length === 0 && reviews.length === 0) {
+                        container.innerHTML = `<div class="activity-empty">Belum ada aktivitas</div>`;
+                        return;
+                    }
+                    
+                    // Gabungkan history dan reviews
+                    let items = [];
+                    
+                    // Tambahkan history
+                    history.forEach(h => {
+                        items.push({
+                            type: 'scrape',
+                            url: h.url || '-',
+                            files: h.files || 0,
+                            size: h.size || '-',
+                            time: h.time || Date.now()
+                        });
+                    });
+                    
+                    // Tambahkan reviews
+                    reviews.forEach(r => {
+                        items.push({
+                            type: 'review',
+                            name: r.name || 'Anonymous',
+                            review: r.review || 'Tidak ada ulasan',
+                            star: r.star || 0,
+                            time: r.timestamp || Date.now()
+                        });
+                    });
+                    
+                    // Urutkan berdasarkan waktu
+                    items.sort((a, b) => b.time - a.time);
+                    const recentItems = items.slice(0, 5);
+                    
+                    container.innerHTML = recentItems.map((item, idx) => {
+                        if (item.type === 'scrape') {
+                            const time = item.time ? new Date(item.time).toLocaleString('id-ID') : '-';
+                            return `
+                                <div class="activity-item">
+                                    <div class="icon-box"><i class="fas fa-file-archive"></i></div>
+                                    <div class="info">
+                                        <div class="url">${escapeHtml(item.url)}</div>
+                                        <div class="meta">📄 ${item.files} file · 📦 ${item.size} · 🕐 ${time}</div>
+                                    </div>
+                                    ${idx === 0 ? `<span class="badge">Terbaru</span>` : ''}
+                                </div>
+                            `;
+                        } else {
+                            const stars = '★'.repeat(Math.min(item.star, 5));
+                            const time = item.time ? new Date(item.time).toLocaleString('id-ID') : '-';
+                            return `
+                                <div class="activity-item">
+                                    <div class="icon-box"><i class="fas fa-star" style="color:var(--star);"></i></div>
+                                    <div class="info">
+                                        <div class="url">${escapeHtml(item.name)} ⭐ ${stars}</div>
+                                        <div class="meta">${escapeHtml(item.review)} · 🕐 ${time}</div>
+                                    </div>
+                                    ${idx === 0 ? `<span class="badge">Terbaru</span>` : ''}
+                                </div>
+                            `;
+                        }
+                    }).join('');
+                } catch (e) {
+                    container.innerHTML = `<div class="activity-empty">Gagal memuat aktivitas</div>`;
+                }
+            }
+
+            // ============================================================
+            // SCROLL REVEAL
+            // ============================================================
+
+            function initScrollReveal() {
+                const els = document.querySelectorAll('.reveal-hidden');
+                els.forEach(el => el.classList.remove('revealed'));
+
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('revealed');
+                        } else {
+                            entry.target.classList.remove('revealed');
+                            void entry.target.offsetWidth;
+                        }
+                    });
+                }, {
+                    threshold: 0.1,
+                    rootMargin: '0px 0px -30px 0px'
+                });
+
+                els.forEach(el => observer.observe(el));
+                window._scrollObserver = observer;
+            }
+
+            // ============================================================
+            // INIT
+            // ============================================================
+
+            // Load all data
+            loadMessages();
+            loadRatings();
+            renderRecentActivity();
+
+            // Init scroll reveal after loading screen
+            setTimeout(() => {
+                initScrollReveal();
+            }, 1500);
+
+            console.log('⭐ Scrape Website — Full Ready!');
+            console.log('📊 Semua orang bisa melihat & mengirim ulasan!');
+            console.log('📝 Ulasan baru langsung muncul di slider & activity');
+        })();
+    </script>
+
+</body>
+</html>

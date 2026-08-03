@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="./file_0000000066248211885c28e08d0c207a.png" alt="Scrapper Logo" width="200" height="auto" style="border: 3px solid #4FC3F7; box-shadow: 0 0 30px rgba(79, 195, 247, 0.3);">
+  <img src="./file_0000000066248211885c28e08d0c207.png" alt="Scrapper Logo" width="200" height="auto" style="border: 3px solid #4FC3F7; box-shadow: 0 0 30px rgba(79, 195, 247, 0.3);">
   
-  # 🔍 Scrapper
+  # Scrapper
   ### *Intelligent Data Extraction Platform*
   
-  [![Website](https://img.shields.io/badge/🚀-Kunjungi_Website-4FC3F7?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0D1117)](https://alifdiaz257-arch.github.io/scrapper)
-  [![GitHub](https://img.shields.io/badge/💻-GitHub-4FC3F7?style=for-the-badge&logo=github&logoColor=white&labelColor=0D1117)](https://github.com/alifdiaz257-arch/scrapper)
-  [![License](https://img.shields.io/badge/📜-MIT_License-4FC3F7?style=for-the-badge&labelColor=0D1117)](LICENSE)
+  [![Website](https://img.shields.io/badge/Kunjungi_Website-4FC3F7?style=for-the-badge&logo=vercel&logoColor=white&labelColor=0D1117)](https://alifdiaz257-arch.github.io/scrapper)
+  [![GitHub](https://img.shields.io/badge/GitHub-4FC3F7?style=for-the-badge&logo=github&logoColor=white&labelColor=0D1117)](https://github.com/alifdiaz257-arch/scrapper)
+  [![License](https://img.shields.io/badge/MIT_License-4FC3F7?style=for-the-badge&labelColor=0D1117)](LICENSE)
   
   ![Visitors](https://api.visitorbadge.io/api/visitors?path=alifdiaz257-arch%2Fscrapper&label=VISITORS&countColor=%234FC3F7)
   ![GitHub stars](https://img.shields.io/github/stars/alifdiaz257-arch/scrapper?style=social&color=4FC3F7)
@@ -15,7 +15,7 @@
 
 ---
 
-## ✨ **Akses Cepat**
+## Akses Cepat
 
 <div align="center">
   <a href="https://alifdiaz257-arch.github.io/scrapper">
@@ -23,15 +23,18 @@
   </a>
   <br><br>
   
-  [![Kunjungi Sekarang](https://img.shields.io/badge/⬇️_KUNJUNGI_WEBSITE-4FC3F7?style=for-the-badge&logo=google-chrome&logoColor=white&labelColor=0D1117)](https://alifdiaz257-arch.github.io/scrapper)
+  [![Kunjungi Sekarang](https://img.shields.io/badge/KUNJUNGI_WEBSITE-4FC3F7?style=for-the-badge&logo=google-chrome&logoColor=white&labelColor=0D1117)](https://alifdiaz257-arch.github.io/scrapper)
   
   atau scan QR Code di bawah ini:
   
   ![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alifdiaz257-arch.github.io/scrapper&bgcolor=0D1117&color=4FC3F7&margin=10)
+  
+  https://alifdiaz257-arch.github.io/scrapper
+</div>
 
 ---
 
-## 🎯 **Fitur Unggulan**
+## Fitur Unggulan
 
 <div align="center">
   <table>
@@ -60,7 +63,7 @@
 
 ---
 
-## 🛠️ **Tech Stack**
+## Tech Stack
 
 <div align="center">
   <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white&labelColor=0D1117" />
@@ -72,7 +75,7 @@
 
 ---
 
-## 🚀 **Cara Menggunakan**
+## Cara Menggunakan
 
 ```bash
 # Clone repositori
@@ -85,3 +88,10 @@ cd scrapper
 open index.html   # Mac
 start index.html  # Windows
 xdg-open index.html # Linux
+```
+
+---
+
+<div align="center">
+  <img src="https://tenor.com/grKg2FMQPRz.gif" alt="Rem Rotating Finger" width="150" style="border-radius: 10px;">
+</div>

@@ -112,17 +112,3 @@ Kontribusi selalu diterima.
 5. Buat Pull Request
 
 ---
-
-# ⭐ Dukung Proyek
-
-<div align="center">
-
-<img src=":[//tenohttpsr.com/view/rem-rotating-the-finger-rem-rotating-finger-rem-ram-rem-gif-2184378691741988951.gif](https://tenor.com/lCrGshfDFJW.gif)" width="150"/>
-
-### Terima kasih telah mengunjungi repository ini ❤️
-
-Jika proyek ini bermanfaat, jangan lupa berikan ⭐ pada repository.
-
-[![Back to Top](https://img.shields.io/badge/Back_to_Top-4FC3F7?style=for-the-badge&labelColor=0D1117)](#-scrapper)
-
-</div>

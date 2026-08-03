@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./file_0000000066248211885c28e08d0c207.png" alt="Scrapper Logo" width="200"/>
+<img src="./file_0000000066248211885c28e08d0c207a.png" alt="Scrapper Logo" width="200"/>
 
 # 🚀 Scrapper
 ### *Intelligent Data Extraction Platform*
@@ -41,10 +41,6 @@ Dengan antarmuka yang sederhana namun profesional, Scrapper cocok digunakan oleh
 <br>
 
 [![Kunjungi Website](https://img.shields.io/badge/KUNJUNGI-WEBSITE-4FC3F7?style=for-the-badge&logo=googlechrome&logoColor=white&labelColor=0D1117)](https://alifdiaz257-arch.github.io/scrapper)
-
-### 🌐 Website
-
-https://alifdiaz257-arch.github.io/scrapper
 
 ### 📱 QR Code
 

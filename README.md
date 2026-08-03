@@ -99,10 +99,6 @@ Linux:
 xdg-open index.html
 ```
 
-Atau langsung buka:
-
-> https://alifdiaz257-arch.github.io/scrapper
-
 ---
 
 # 🤝 Kontribusi

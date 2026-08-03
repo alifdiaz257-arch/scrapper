@@ -29,8 +29,6 @@
   
   ![QR Code](https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://alifdiaz257-arch.github.io/scrapper&bgcolor=ffffff&color=FF6B6B&margin=10)
   
-  **[🔗 https://alifdiaz257-arch.github.io/scrapper](https://alifdiaz257-arch.github.io/scrapper)**
-</div>
 
 ---
 

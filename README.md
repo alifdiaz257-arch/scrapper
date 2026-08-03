@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/alifdiaz257-arch/scrapper/logo.png" alt="Scrapper Logo" width="150" height="150" style="border-radius: 50%;">
+  <img src="./logo.png" alt="Scrapper Logo" width="150" height="150" style="border-radius: 50%; border: 3px solid #FF6B6B;">
   
   # 🔍 Scrapper
   ### *Intelligent Data Extraction Platform*

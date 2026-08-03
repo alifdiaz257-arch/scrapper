@@ -117,7 +117,7 @@ Kontribusi selalu diterima.
 
 <div align="center">
 
-<img src="https://tenor.com/view/rem-rotating-the-finger-rem-rotating-finger-rem-ram-rem-gif-2184378691741988951.gif" width="150"/>
+<img src=":[//tenohttpsr.com/view/rem-rotating-the-finger-rem-rotating-finger-rem-ram-rem-gif-2184378691741988951.gif](https://tenor.com/lCrGshfDFJW.gif)" width="150"/>
 
 ### Terima kasih telah mengunjungi repository ini ❤️
 

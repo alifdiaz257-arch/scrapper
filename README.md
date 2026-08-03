@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./file_0000000066248211885c28e08d0c207.png" alt="Scrapper Logo" width="200" height="auto" style="border: 3px solid #4FC3F7; box-shadow: 0 0 30px rgba(79, 195, 247, 0.3);">
+  <img src="./file_0000000066248211885c28e08d0c207a.png" alt="Scrapper Logo" width="200" height="auto" style="border: 3px solid #4FC3F7; box-shadow: 0 0 30px rgba(79, 195, 247, 0.3);">
   
   # Scrapper
   ### *Intelligent Data Extraction Platform*

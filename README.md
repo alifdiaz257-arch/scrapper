@@ -1,4 +1,6 @@
 <div align="center">
+  
+### *link yang tertera di atas itu error harap gunakan yang sudah saya buat di bawah*
 
 <img src="./file_0000000066248211885c28e08d0c207a.png" alt="Scrapper Logo" width="200"/>
 
